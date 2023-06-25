@@ -10,14 +10,21 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.7.0",
+    "@radix-ui/react-slot": "^1.0.2",
     "@tauri-apps/api": "^1.4.0",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
+    "keen-slider": "^6.8.5",
     "lucide-react": "^0.252.0",
+    "nanoid": "^4.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router": "^6.14.0",
+    "react-router-dom": "^6.14.0",
     "tailwind-merge": "^1.13.2",
-    "tailwindcss-animate": "^1.0.6"
+    "usehooks-ts": "^2.9.1",
+    "zustand": "^4.3.8"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.4.0",
@@ -25,6 +32,10 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^3.0.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2",
+    "tailwindcss-animate": "^1.0.6",
     "typescript": "^4.9.5",
     "vite": "^4.2.1"
   }
