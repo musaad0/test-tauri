@@ -1,11 +1,16 @@
 import "./styles.css";
 import { useFoldersStore } from "@/store/foldersStore";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Timer, usePlayerStore } from "@/store/playerStore";
 import { IFile } from "@/types";
 import { PlayerControls } from "@/pages/Player/PlayerControls";
-import { useInterval } from "usehooks-ts";
+import { useIntersectionObserver, useInterval } from "usehooks-ts";
+import { normalize } from "@tauri-apps/api/path";
+import { cn } from "@/utils";
+import { AvatarImage, Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { LoaderIcon, Pen } from "lucide-react";
+import { RowVirtualizerDynamicWindow } from "@/pages/Player/VirtualImageList";
 
 type Props = {};
 
@@ -15,9 +20,12 @@ export function Player({}: Props) {
     .flat();
   return (
     <div>
-      <div className="relative overflow-y-hidden flex justify-center h-screen w-fit mx-auto">
+      <div>
+        {/* <div className="relative overflow-y-hidden flex justify-center h-screen w-fit mx-auto"> */}
         <Countdown filesLength={files.length} />
-        <DisplayedImage files={files} />
+        <RowVirtualizerDynamicWindow files={files} />
+
+        {/* <DisplayedImage files={files} /> */}
         <PlayerControls filesLength={files.length} />
       </div>
     </div>
@@ -26,11 +34,52 @@ export function Player({}: Props) {
 
 function DisplayedImage({ files }: { files: IFile[] }) {
   const index = usePlayerStore((state) => state.index);
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const ref = useRef<HTMLImageElement | null>(null);
+  const entry = useIntersectionObserver(ref, {});
+  const isVisible = !!entry?.isIntersecting;
+
+  const [loaded, setLoaded] = React.useState<boolean[]>([]);
+
+  React.useEffect(() => {
+    const new_loaded = [...loaded];
+    new_loaded[currentSlide] = true;
+    setLoaded(new_loaded);
+  }, [currentSlide]);
+
+  useEffect(() => {
+    setCurrentSlide(index);
+  }, [index]);
+
   return (
-    <img
-      className="mx-auto object-contain max-w-full"
-      src={convertFileSrc(files?.[index]?.path)}
-    />
+    <Avatar>
+      <AvatarImage
+        ref={ref}
+        onLoadingStatusChange={(status) => {
+          // status === ''
+        }}
+        className={cn(
+          "mx-auto object-contain max-w-full h-screen ",
+          isVisible ? "animate-in fade-in-75 duration-500" : ""
+        )}
+        src={convertFileSrc(files?.[index]?.path)}
+      />
+      <AvatarFallback
+        delayMs={100}
+        className="flex h-full w-screen items-center justify-center"
+      >
+        <Pen className="animate-spin" />
+      </AvatarFallback>
+
+      {/* <img
+        className={cn(
+          "mx-auto object-contain max-w-full",
+          !loaded[index] ? "blur-3xl opacity-10" : ""
+        )}
+        // src={loaded[index] ? convertFileSrc(files?.[index]?.path) : ""}
+        src={convertFileSrc(files?.[index]?.path)}
+      /> */}
+    </Avatar>
   );
 }
 

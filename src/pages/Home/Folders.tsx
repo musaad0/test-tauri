@@ -8,7 +8,6 @@ import { basename } from "@tauri-apps/api/path";
 import { Button } from "@/components";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { useFoldersStore } from "@/store/foldersStore";
-import { o } from "@tauri-apps/api/dialog-20ff401c";
 
 type Props = {};
 
@@ -35,6 +34,7 @@ const addFolder = useFoldersStore.getState().addFolder;
 async function openFileDialog() {
   const selected = await open({
     directory: true,
+    recursive: true,
     multiple: true,
     // to bypass a bug on tauri that allows files to be uploaded
     filters: [
