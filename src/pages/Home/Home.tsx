@@ -10,7 +10,7 @@ appWindow.setDecorations(true);
 
 export default function Home() {
   return (
-    <div className="max-w-sm mx-auto py-10">
+    <div className="max-w-sm mx-auto py-10 px-2">
       <Folders />
       <IntervalPicker />
       <Control />

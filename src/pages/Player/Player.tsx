@@ -1,31 +1,45 @@
 import "./styles.css";
 import { useFoldersStore } from "@/store/foldersStore";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Timer, usePlayerStore } from "@/store/playerStore";
-import { IFile } from "@/types";
+import { IFile } from "@/models";
 import { PlayerControls } from "@/pages/Player/PlayerControls";
-import { useIntersectionObserver, useInterval } from "usehooks-ts";
-import { normalize } from "@tauri-apps/api/path";
-import { cn } from "@/utils";
-import { AvatarImage, Avatar, AvatarFallback } from "@radix-ui/react-avatar";
-import { LoaderIcon, Pen } from "lucide-react";
-import { RowVirtualizerDynamicWindow } from "@/pages/Player/VirtualImageList";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Pencil } from "lucide-react";
+import { useInterval } from "usehooks-ts";
+import { shuffleList } from "@/utils";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 type Props = {};
 
 export function Player({}: Props) {
-  const files = useFoldersStore((state) => state.folders)
-    .map((item) => item.files)
-    .flat();
+  const [files, setFiles] = useState<IFile[]>([]);
+  const folders = useFoldersStore((state) => state.folders);
+  const shuffle = usePlayerStore((state) => state.shuffle);
+  const setShuffle = usePlayerStore((state) => state.setShuffle);
+
+  useEffect(() => {
+    const flatFiles = folders.map((item) => item.files).flat();
+    if (shuffle.isShuffle) {
+      const randomSeed = Math.floor(Math.random() * 10000 + 1);
+      setFiles(shuffleList(flatFiles, shuffle.seed || randomSeed));
+      // if there is no existing shuffle seed save the new one
+      if (!shuffle.seed) {
+        setShuffle({
+          isShuffle: true,
+          seed: randomSeed,
+        });
+      }
+    } else {
+      setFiles(flatFiles);
+    }
+  }, [folders, shuffle.isShuffle]);
+
   return (
     <div>
       <div>
-        {/* <div className="relative overflow-y-hidden flex justify-center h-screen w-fit mx-auto"> */}
         <Countdown filesLength={files.length} />
-        <RowVirtualizerDynamicWindow files={files} />
-
-        {/* <DisplayedImage files={files} /> */}
+        {files.length && <DisplayedImage files={files} />}
         <PlayerControls filesLength={files.length} />
       </div>
     </div>
@@ -34,51 +48,19 @@ export function Player({}: Props) {
 
 function DisplayedImage({ files }: { files: IFile[] }) {
   const index = usePlayerStore((state) => state.index);
-  const [currentSlide, setCurrentSlide] = React.useState(0);
-  const ref = useRef<HTMLImageElement | null>(null);
-  const entry = useIntersectionObserver(ref, {});
-  const isVisible = !!entry?.isIntersecting;
-
-  const [loaded, setLoaded] = React.useState<boolean[]>([]);
-
-  React.useEffect(() => {
-    const new_loaded = [...loaded];
-    new_loaded[currentSlide] = true;
-    setLoaded(new_loaded);
-  }, [currentSlide]);
-
-  useEffect(() => {
-    setCurrentSlide(index);
-  }, [index]);
 
   return (
     <Avatar>
       <AvatarImage
-        ref={ref}
-        onLoadingStatusChange={(status) => {
-          // status === ''
-        }}
-        className={cn(
-          "mx-auto object-contain max-w-full h-screen ",
-          isVisible ? "animate-in fade-in-75 duration-500" : ""
-        )}
-        src={convertFileSrc(files?.[index]?.path)}
+        src={files[index].path}
+        className="mx-auto object-contain max-w-full h-screen fade-in animate-in duration-700"
       />
       <AvatarFallback
-        delayMs={100}
-        className="flex h-full w-screen items-center justify-center"
+        delayMs={200}
+        className="flex justify-center items-center h-screen"
       >
-        <Pen className="animate-spin" />
+        <Pencil className="animate-spin" />
       </AvatarFallback>
-
-      {/* <img
-        className={cn(
-          "mx-auto object-contain max-w-full",
-          !loaded[index] ? "blur-3xl opacity-10" : ""
-        )}
-        // src={loaded[index] ? convertFileSrc(files?.[index]?.path) : ""}
-        src={convertFileSrc(files?.[index]?.path)}
-      /> */}
     </Avatar>
   );
 }
@@ -134,12 +116,23 @@ function Countdown({ filesLength }: { filesLength: number }) {
   }, [index]);
 
   return (
-    <div className="absolute right-0 top-0 text-white p-4 backdrop-blur-sm bg-slate-600/50 rounded-es-lg">
-      <span className="countdown">
-        {/* typescript doesn't like --value so ignore */}
-        {/* @ts-ignore */}
-        <span style={{ "--value": count }}></span>
-      </span>
-    </div>
+    // <div className="absolute right-0 top-0 text-white p-4 backdrop-blur-sm bg-slate-600/50 rounded-es-lg">
+    //   <span className="countdown">
+    //     {/* typescript doesn't like --value so ignore */}
+    //     {/* @ts-ignore */}
+    //     <span style={{ "--value": count }}></span>
+    //   </span>
+    // </div>
+    <CountdownCircleTimer
+      isPlaying={isPlaying}
+      duration={convertInputToSecondsNumber(interval)}
+      colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
+      colorsTime={[7, 5, 2, 0]}
+      onComplete={() => {
+        return { shouldRepeat: true, delay: 1 };
+      }}
+    >
+      {({ remainingTime }) => <>{remainingTime}</>}
+    </CountdownCircleTimer>
   );
 }

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { IFile } from "@/types";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { IFile } from "@/models";
 import { usePlayerStore } from "@/store/playerStore";
 import { cn } from "@/utils";
 
@@ -67,10 +66,24 @@ export const RowVirtualizerDynamicWindow = ({ files }: { files: IFile[] }) => {
               ref={virtualizer.measureElement}
             >
               <div className={cn("h-screen")}>
-                <img
+                {/* <img
                   className="h-full max-w-full object-contain mx-auto"
-                  src={convertFileSrc(files[virtualRow.index].path)}
+                  src={files[virtualRow.index].path}
+                /> */}
+                <img
+                  src={files?.[index].path}
+                  className={`mx-auto h-screen max-w-full object-contain 
+              `}
                 />
+                {/* <Avatar>
+                  <AvatarImage
+                    className="h-full max-w-full object-contain mx-auto"
+                    src={files[virtualRow.index].path}
+                  />
+                  <AvatarFallback className="h-full max-w-full object-contain mx-auto">
+                    <Pen className="animate-spin" />
+                  </AvatarFallback>
+                </Avatar> */}
               </div>
             </div>
           ))}

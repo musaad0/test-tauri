@@ -1,14 +1,20 @@
-import { usePlayerStore } from "@/store/playerStore";
 import {
-  ArrowLeft,
-  Home,
-  LucideIcon,
-  Pause,
-  Play,
-  StepBack,
-  StepForward,
-} from "lucide-react";
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Input,
+} from "@/components";
+import { usePlayerStore } from "@/store/playerStore";
+import { Pause, Play, Square, StepBack, StepForward } from "lucide-react";
+import { useNavigate } from "@/hooks";
 import React, { ReactNode } from "react";
+import { useFoldersStore } from "@/store/foldersStore";
+import { storeSessionData } from "@/store/store";
 
 type Props = {
   filesLength: number;
@@ -50,18 +56,28 @@ export function PlayerControls({ filesLength }: Props) {
           }}
           icon={<StepForward className="w-4 h-4" />}
         />
+        <EndSessionDialog
+          button={
+            <PlayerControlButton
+              onClick={() => {}}
+              icon={<Square className="w-4 h-4" />}
+            />
+          }
+        />
       </div>
     </div>
   );
 }
 
-function PlayerControlButton({
-  icon,
-  onClick,
-}: {
+interface PlayerControlButton {
   icon: ReactNode;
   onClick: () => void;
-}) {
+}
+
+const PlayerControlButton = React.forwardRef<
+  HTMLButtonElement,
+  PlayerControlButton
+>(({ onClick, icon }, ref) => {
   return (
     <button
       type="button"
@@ -70,5 +86,44 @@ function PlayerControlButton({
     >
       {icon}
     </button>
+  );
+});
+
+function EndSessionDialog({ button }: { button: ReactNode }) {
+  const folders = useFoldersStore((state) => state.folders);
+  const index = usePlayerStore((state) => state.index);
+  const shuffle = usePlayerStore((state) => state.shuffle);
+  const navigate = useNavigate();
+
+  const handleSave = () => {
+    storeSessionData({
+      folders: folders.map((item) => item.path),
+      index,
+      shuffle,
+    });
+    navigate("/");
+  };
+
+  const handleSavedIndex = () => {
+    // setIndex(initialIndex);
+    navigate("/");
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{button}</DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle> Save & Quit ?</DialogTitle>
+          <DialogDescription>
+            You can save your current progress and continue later
+          </DialogDescription>
+        </DialogHeader>
+        <div></div>
+        <DialogFooter>
+          <Button onClick={handleSave}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
