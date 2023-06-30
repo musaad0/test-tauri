@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Pencil } from "lucide-react";
 import { useInterval } from "usehooks-ts";
 import { shuffleList } from "@/utils";
-import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 type Props = {};
 
@@ -116,23 +115,12 @@ function Countdown({ filesLength }: { filesLength: number }) {
   }, [index]);
 
   return (
-    // <div className="absolute right-0 top-0 text-white p-4 backdrop-blur-sm bg-slate-600/50 rounded-es-lg">
-    //   <span className="countdown">
-    //     {/* typescript doesn't like --value so ignore */}
-    //     {/* @ts-ignore */}
-    //     <span style={{ "--value": count }}></span>
-    //   </span>
-    // </div>
-    <CountdownCircleTimer
-      isPlaying={isPlaying}
-      duration={convertInputToSecondsNumber(interval)}
-      colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-      colorsTime={[7, 5, 2, 0]}
-      onComplete={() => {
-        return { shouldRepeat: true, delay: 1 };
-      }}
-    >
-      {({ remainingTime }) => <>{remainingTime}</>}
-    </CountdownCircleTimer>
+    <div className="absolute right-0 top-0 text-white p-4 backdrop-blur-sm bg-slate-600/50 rounded-xl m-4 w-14 h-14 flex justify-center items-center">
+      <span className="countdown">
+        {/* typescript doesn't like --value so ignore */}
+        {/* @ts-ignore */}
+        <span style={{ "--value": `${count}` }}></span>
+      </span>
+    </div>
   );
 }

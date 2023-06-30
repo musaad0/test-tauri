@@ -10,7 +10,15 @@ import {
   Input,
 } from "@/components";
 import { usePlayerStore } from "@/store/playerStore";
-import { Pause, Play, Square, StepBack, StepForward } from "lucide-react";
+import {
+  Home,
+  Pause,
+  Play,
+  Save,
+  Square,
+  StepBack,
+  StepForward,
+} from "lucide-react";
 import { useNavigate } from "@/hooks";
 import React, { ReactNode } from "react";
 import { useFoldersStore } from "@/store/foldersStore";
@@ -104,8 +112,7 @@ function EndSessionDialog({ button }: { button: ReactNode }) {
     navigate("/");
   };
 
-  const handleSavedIndex = () => {
-    // setIndex(initialIndex);
+  const handleNavigateHome = () => {
     navigate("/");
   };
 
@@ -121,7 +128,14 @@ function EndSessionDialog({ button }: { button: ReactNode }) {
         </DialogHeader>
         <div></div>
         <DialogFooter>
-          <Button onClick={handleSave}>Save</Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 me-2" />
+            Save
+          </Button>
+          <Button variant={"ghost"} onClick={handleNavigateHome}>
+            <Home className="w-4 h-4 me-2" />
+            Home
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
